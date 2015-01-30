@@ -1,0 +1,10 @@
+name: Autentifica
+version: 0.1
+cabal-version: >= 1.2
+build-type: Simple
+
+executable autentifica
+  Main-Is: Main.hs
+  hs-source-dirs: src
+  build-depends: aeson, base, bytestring, pwstore-fast, snap-core, snap-server
+

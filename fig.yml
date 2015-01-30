@@ -1,0 +1,16 @@
+web:
+  build: .
+  ports:
+    - "8000:8000"
+  volumes:
+    - .:/usr/share/src
+
+test:
+  build: test/integration
+  volumes:
+    - test/integration:/usr/share/src
+  links:
+    - web
+  environment:
+    - AUTENTIFICA_URL=http://web:8000
+
