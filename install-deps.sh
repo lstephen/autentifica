@@ -1,6 +1,6 @@
 #!/bin/bash
 
-apt-get install -y --no-install-recommends apparmor docker.io
+curl -sSL https://get.docker.com/ubuntu/ | sudo sh
 
 mkdir -p /usr/local/bin
 
