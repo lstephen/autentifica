@@ -2,6 +2,8 @@
 
 module Main (main) where
 
+import Autentifica.User
+
 import Control.Applicative
 import Control.Monad
 
@@ -14,25 +16,12 @@ import Snap.Http.Server
 
 main = httpServe config site
 
-site = dir "user" user
+site = dir "user" userSite
 
-config = setVerbose True $ setErrorLog (ConfigIoLog BS.putStrLn) $ setAccessLog (ConfigIoLog BS.putStrLn) defaultConfig
+config = setVerbose True . setErrorLog log $ setAccessLog log defaultConfig
+  where
+    log = ConfigIoLog BS.putStrLn
 
-user = method POST $ ifTop createUser
-
-
-createUser = do
-  body <- readRequestBody maxBound
-  case (decode body :: Maybe UserCreate) of
-    Nothing -> modifyResponse $ setResponseCode 400
-    Just v -> modifyResponse $ setHeader "Location" ""
-
-
-data UserCreate = UserCreate { uid :: String, pwd :: String }
-
-instance FromJSON UserCreate where
-  parseJSON (Object o) = UserCreate <$> o .: "id" <*> o .: "password"
-  parseJSON _          = mzero
 
 
 

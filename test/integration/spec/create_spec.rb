@@ -1,6 +1,5 @@
 require 'airborne'
 require 'securerandom'
-require 'rspec/its'
 
 describe 'Create User' do
 
@@ -16,8 +15,11 @@ describe 'Create User' do
       post '/user', { :id => id, :password => password }
     }
 
+    let! (:location) { headers[:location] }
+
     it { expect_status 200 }
-    it { expect(headers[:location]).to_not eq(nil) }
+    it { expect(json_body[:id]).to eq(id) }
+    it { expect(location).to eq("#{ENV['AUTENTIFICA_URL']}/user/#{id}") }
   end
 
   context 'when malformed user supplied' do
