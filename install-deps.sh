@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# apt-get install -y --no-install-recommends apparmor docker.io
+apt-get install -y --no-install-recommends docker
 
 mkdir -p /usr/local/bin
 
