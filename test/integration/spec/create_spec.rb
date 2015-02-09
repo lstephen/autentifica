@@ -22,7 +22,7 @@ describe 'Create User' do
     it { expect(location).to eq("#{ENV['AUTENTIFICA_URL']}/user/#{id}") }
   end
 
-  context 'when malformed user supplied' do
+  context 'incomplete user supplied' do
     let (:id) { 'Malformed_User' }
     let (:password) { SecureRandom.base64 }
 
