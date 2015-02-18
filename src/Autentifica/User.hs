@@ -6,7 +6,9 @@ import Control.Applicative
 import Control.Monad
 
 import Data.Aeson
+import Data.Aeson.Types
 import Data.ByteString.Char8 as BS
+import Data.ByteString.Lazy as LBS
 
 import Snap.Core
 import Snap.Http.Server
@@ -17,15 +19,32 @@ userSite = method POST $ ifTop create
 create :: MonadSnap m => m ()
 create = do
   body <- readRequestBody maxBound
-  case (decode body :: Maybe Create) of
-    Nothing -> modifyResponse $ setResponseCode 400
-    Just c  -> do
+  case parseBody body of
+    BadRequest -> modifyResponse $ setResponseCode 400
+    UnrecognizableEntity -> modifyResponse $ setResponseCode 422
+    Result c -> do
         req <- getRequest
-        modifyResponse $ setHeader "Location" (location req) 
+        modifyResponse $ setHeader "Location" (location req)
         writeJSON user
       where
         user = User $ uid c
-        location req = BS.concat ["http://", rqServerName req, ":", (BS.pack . show . rqServerPort) req, rqContextPath req, (BS.pack . uid) c]
+        location req = BS.concat
+          ["http://"
+          , rqServerName req
+          , ":"
+          , (BS.pack . show . rqServerPort) req
+          , rqContextPath req
+          , (BS.pack . uid) c
+          ]
+
+data ParseResult a = BadRequest | UnrecognizableEntity | Result a
+
+parseBody :: FromJSON a => LBS.ByteString -> ParseResult a
+parseBody body = case (decode body :: Maybe Object) of
+  Nothing -> BadRequest
+  Just o  -> case decode body of
+    Nothing -> UnrecognizableEntity
+    Just c  -> Result c
 
 data Create = Create { uid :: String, pwd :: String }
 

@@ -1,19 +1,21 @@
 require 'airborne'
 require 'securerandom'
 
-describe 'Create User' do
+describe 'POST /user' do
 
   Airborne.configure do |config|
     config.base_url = ENV['AUTENTIFICA_URL']
   end
 
-  context 'when user created' do
-    let (:id) { 'John_Doe' }
-    let (:password) { SecureRandom.base64 }
+  let (:id) { 'John_Doe' }
+  let (:password) { SecureRandom.base64 }
 
-    subject! {
-      post '/user', { :id => id, :password => password }
-    }
+  subject! {
+    post '/user', user
+  }
+
+  context 'valid request' do
+    let (:user) { { :id => id, :password => password } }
 
     let! (:location) { headers[:location] }
 
@@ -22,29 +24,24 @@ describe 'Create User' do
     it { expect(location).to eq("#{ENV['AUTENTIFICA_URL']}/user/#{id}") }
   end
 
-  context 'incomplete user supplied' do
-    let (:id) { 'Malformed_User' }
-    let (:password) { SecureRandom.base64 }
+  context 'no user' do
+    let (:user) { nil }
+    it { expect_status 400 }
+  end
 
-    it 'does not allow no user' do
-      post '/user'
-      expect_status 400
-    end
+  context 'empty user' do
+    let (:user) { {} }
+    it { expect_status 422 }
+  end
 
-    it 'does not allow an empty user' do
-      post '/user', {}
-      expect_status 400
-    end
+  context 'no id' do
+    let (:user) { { :password => password } }
+    it { expect_status 422 }
+  end
 
-    it 'does not allow a user with no id' do
-      post '/user', { :password => password }
-      expect_status 400
-    end
-
-    it 'does not allow a user with no password' do
-      post '/user', { :id => id }
-      expect_status 400
-    end
+  context 'no password' do
+    let (:user) { { :id => id } }
+    it { expect_status 422 }
   end
 
 end
