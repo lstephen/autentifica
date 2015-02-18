@@ -2,7 +2,9 @@
 
 curl -sSL https://get.docker.com/ubuntu/ | sudo sh
 
-docker -d -H http+unix://usr/local/share/docker.sock
+docker -d -H unix://usr/local/share/docker.sock
+
+export DOCKETHOST=http+unix://usr/local/share/docker.sock
 
 mkdir -p /usr/local/bin
 
