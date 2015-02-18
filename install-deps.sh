@@ -2,7 +2,7 @@
 
 curl -sSL https://get.docker.com/ubuntu/ | sudo sh
 
-docker -d
+docker -d -H http+unix:~/docker.sock
 
 mkdir -p /usr/local/bin
 
